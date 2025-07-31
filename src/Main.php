@@ -1,5 +1,22 @@
 <?php
 
+/*
+ *     ___    __  _________                          ______________
+ *    /   |  /  |/  / ____/___ _____ ___  ___  _____/ ___<  / ____/
+ *   / /| | / /|_/ / / __/ __ `/ __ `__ \/ _ \/ ___/ __ \/ /___ \
+ *  / ___ |/ /  / / /_/ / /_/ / / / / / /  __/ /  / /_/ / /___/ /
+ * /_/  |_/_/  /_/\____/\__,_/_/ /_/ /_/\___/_/   \____/_/_____/
+ *
+ * MIT License - Copyright (c) 2025 AMGamer615
+ * Permission is granted to use, copy, modify, and distribute this software,
+ * provided the copyright notice and this permission notice are included.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+ *
+ * @Author: AMGamer615
+ * @Link: https://github.com/AMGamer615
+ *
+ */
+
 declare(strict_types=1);
 
 namespace AMGamer615\PersianChatFixer;
