@@ -39,8 +39,9 @@ class Main extends PluginBase implements Listener{
 
     protected function onEnable(): void
     {
+        $this->saveResource(self::ResourcePackName);
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        self::$resourcePack = new ZippedResourcePack($this->getResourcePath(self::ResourcePackName));
+        self::$resourcePack = new ZippedResourcePack($this->getDataFolder(). self::ResourcePackName);
     }
 
     /** @priority HIGHEST */
