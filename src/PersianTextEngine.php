@@ -11,12 +11,26 @@ class PersianTextEngine
 
     public static function reversePersianText(string $text): string
     {
-        if (!preg_match('/\p{Arabic}/u', $text)) {
+        static $hasArabicRegex    = null;
+        static $tokenizeRegex     = null;
+        static $arabicCharRegex   = null;
+        static $spaceRegex        = null;
+        static $bracketWrapRegex  = null;
+
+        if ($hasArabicRegex === null) {
+            $hasArabicRegex    = '/\p{Arabic}/u';
+            $tokenizeRegex     = '/(\s+|[(\[{<][^)\]}>]*[)\]}>]|[^\s()\[\]{}<>]+)/u';
+            $arabicCharRegex   = '/\p{Arabic}/u';
+            $spaceRegex        = '/^\s+$/u';
+            $bracketWrapRegex  = '/^([(\[{<])(.*)([)\]}>])$/us';
+        }
+
+        if (!preg_match($hasArabicRegex, $text)) {
             return $text;
         }
 
         preg_match_all(
-            '/(\s+|[(\[{<][^)\]}>]*[)\]}>]|[^\s()\[\]{}<>]+)/u',
+            $tokenizeRegex,
             $text,
             $matches
         );
@@ -26,18 +40,18 @@ class PersianTextEngine
         $buffer = '';
         $count = count($rawTokens);
         for ($i = 0; $i < $count; $i++) {
-            $tok = $rawTokens[$i];
-            $next = $i + 1 < $count ? $rawTokens[$i + 1] : null;
+            $tok  = $rawTokens[$i];
+            $next = ($i + 1 < $count) ? $rawTokens[$i + 1] : null;
 
-            if (preg_match('/\p{Arabic}/u', $tok)) {
+            if (preg_match($arabicCharRegex, $tok)) {
                 if ($buffer !== '') {
                     $tokens[] = $buffer;
                     $buffer = '';
                 }
                 $tokens[] = $tok;
             }
-            elseif (preg_match('/^\s+$/u', $tok)) {
-                if ($buffer !== '' && $next !== null && !preg_match('/\p{Arabic}/u', $next)) {
+            elseif (preg_match($spaceRegex, $tok)) {
+                if ($buffer !== '' && $next !== null && !preg_match($arabicCharRegex, $next)) {
                     $buffer .= $tok;
                 } else {
                     if ($buffer !== '') {
@@ -59,14 +73,14 @@ class PersianTextEngine
 
         $result = '';
         foreach ($tokens as $tok) {
-            if (preg_match('/^([(\[{<])(.*)([)\]}>])$/us', $tok, $m)) {
+            if (preg_match($bracketWrapRegex, $tok, $m)) {
                 $open  = $m[1];
                 $inner = $m[2];
                 $close = $m[3];
                 $innerReversed = self::reversePersianText($inner);
                 $result .= $open . $innerReversed . $close;
             }
-            elseif (preg_match('/\p{Arabic}/u', $tok)) {
+            elseif (preg_match($arabicCharRegex, $tok)) {
                 $chars = mb_str_split($tok);
                 $chars = array_reverse($chars);
                 $result .= implode('', $chars);
