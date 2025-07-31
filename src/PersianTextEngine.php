@@ -16,7 +16,7 @@ class PersianTextEngine
         }
 
         preg_match_all(
-            '/(\s+|[\(\[\{<][^\)\]\}\>]*[\)\]\}\>]|[^\s\(\)\[\]\{\}<>]+)/u',
+            '/(\s+|[(\[{<][^)\]}>]*[)\]}>]|[^\s()\[\]{}<>]+)/u',
             $text,
             $matches
         );
@@ -59,7 +59,7 @@ class PersianTextEngine
 
         $result = '';
         foreach ($tokens as $tok) {
-            if (preg_match('/^([\(\[\{<])(.*)([\)\]\}\>])$/us', $tok, $m)) {
+            if (preg_match('/^([(\[{<])(.*)([)\]}>])$/us', $tok, $m)) {
                 $open  = $m[1];
                 $inner = $m[2];
                 $close = $m[3];
