@@ -43,7 +43,7 @@ class PersianTextEngine
         $glyphs = self::$glyphs;
         $nonConnectors = self::$nonConnectors;
 
-        $chars = mb_str_split($text);
+        $chars = self::mb_str_split($text);
         $count = count($chars);
         $result = [];
 
@@ -155,7 +155,7 @@ class PersianTextEngine
                 $result .= $open . $innerReversed . $close;
             }
             elseif (preg_match($arabicCharRegex, $tok)) {
-                $chars = mb_str_split($tok);
+                $chars = self::mb_str_split($tok);
                 $chars = array_reverse($chars);
                 $result .= implode('', $chars);
             }
@@ -165,6 +165,32 @@ class PersianTextEngine
         }
 
         return $result;
+    }
+
+    public static function mb_str_split(string $string): array
+    {
+        $chars = [];
+        $len = strlen($string);
+        $i = 0;
+
+        while ($i < $len) {
+            $byte = ord($string[$i]);
+
+            if ($byte < 0x80) {
+                $clen = 1;
+            } elseif ($byte < 0xE0) {
+                $clen = 2;
+            } elseif ($byte < 0xF0) {
+                $clen = 3;
+            } else {
+                $clen = 4;
+            }
+
+            $chars[] = substr($string, $i, $clen);
+            $i += $clen;
+        }
+
+        return $chars;
     }
 
     public static function process(string $text): string

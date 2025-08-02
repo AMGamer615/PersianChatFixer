@@ -1,6 +1,6 @@
 ---
 name: PersianChatFixer
-version: 1.0.3
+version: 1.1.0
 main: AMGamer615\PersianChatFixer\Main
 api: 5.0.0
 src-namespace-prefix: AMGamer615\PersianChatFixer

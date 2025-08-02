@@ -44,13 +44,13 @@ class Main extends PluginBase implements Listener{
         self::$resourcePack = new ZippedResourcePack($this->getDataFolder(). self::ResourcePackName);
     }
 
-    /** @priority HIGHEST */
+    /** @priority LOW */
     public function onPlayerChat(PlayerChatEvent $event): void
     {
         $event->setMessage(PersianTextEngine::process($event->getMessage()));
     }
 
-    /** @priority HIGHEST */
+    /** @priority LOW */
     public function onSignChange(SignChangeEvent $event): void
     {
         $signText = $event->getNewText();
@@ -58,7 +58,7 @@ class Main extends PluginBase implements Listener{
         $event->setNewText(new SignText($lines, $signText->getBaseColor(), $signText->isGlowing()));
     }
 
-    /** @priority HIGHEST */
+    /** @priority LOW */
     public function onPlayerResourcePackOffer(PlayerResourcePackOfferEvent $event): void
     {
         $event->addResourcePack(self::$resourcePack, "AMGamer615");
