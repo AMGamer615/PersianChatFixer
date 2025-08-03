@@ -29,6 +29,8 @@ class PersianTextEngineTest extends TestCase
         $this->assertEquals("؟یبوخ (Ali یلع) مالس", PersianTextEngine::reversePersianText("سلام (علی Ali) خوبی؟"));
         $this->assertEquals("؟یبوخ Ali Agha مالس", PersianTextEngine::reversePersianText("سلام Ali Agha خوبی؟"));
         $this->assertEquals("؟یبوخ {یلع} مالس", PersianTextEngine::reversePersianText("سلام {علی} خوبی؟"));
+        $this->assertEquals("۱۲۳ مالس", PersianTextEngine::reversePersianText("سلام ۱۲۳"));
+        $this->assertEquals(">>> مالس", PersianTextEngine::reversePersianText(">>> سلام"));
         $this->assertEquals("؟یبوخ [Ali] مالس", PersianTextEngine::reversePersianText("سلام [Ali] خوبی؟"));
         $this->assertEquals("<!مبوخ> :تفگ", PersianTextEngine::reversePersianText("گفت: <خوبم!>"));
         $this->assertEquals("؟یبوخ ،مالس", PersianTextEngine::reversePersianText("سلام، خوبی؟"));

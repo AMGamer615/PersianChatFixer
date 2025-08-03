@@ -87,84 +87,60 @@ class PersianTextEngine
     {
         static $hasArabicRegex    = null;
         static $tokenizeRegex     = null;
-        static $arabicCharRegex   = null;
-        static $spaceRegex        = null;
         static $bracketWrapRegex  = null;
+        static $numberRegex       = null;
+        static $latinRegex        = null;
+        static $symbolRegex       = null;
 
         if ($hasArabicRegex === null) {
             $hasArabicRegex    = '/\p{Arabic}/u';
-            $tokenizeRegex     = '/(\s+|[(\[{<][^)\]}>]*[)\]}>]|[^\s()\[\]{}<>]+)/u';
-            $arabicCharRegex   = '/\p{Arabic}/u';
-            $spaceRegex        = '/^\s+$/u';
+            $tokenizeRegex     = '/([(\[{<][^)\]}>]*[)\]}>]|\p{Latin}[\p{Latin}\d ]*|\s+|\S+)/u';
             $bracketWrapRegex  = '/^([(\[{<])(.*)([)\]}>])$/us';
+            $numberRegex       = '/^\p{N}+$/u';
+            $latinRegex        = '/^[A-Za-z0-9 ]+$/u';
+            $symbolRegex       = '/^[><\]\[]+$/u';
         }
 
         if (!preg_match($hasArabicRegex, $text)) {
             return $text;
         }
 
-        preg_match_all(
-            $tokenizeRegex,
-            $text,
-            $matches
-        );
-        $rawTokens = $matches[1];
+        preg_match_all($tokenizeRegex, $text, $matches);
+        $tokens = $matches[0];
+        $processedTokens = [];
 
-        $tokens = [];
-        $buffer = '';
-        $count = count($rawTokens);
-        for ($i = 0; $i < $count; $i++) {
-            $tok  = $rawTokens[$i];
-            $next = ($i + 1 < $count) ? $rawTokens[$i + 1] : null;
-
-            if (preg_match($arabicCharRegex, $tok)) {
-                if ($buffer !== '') {
-                    $tokens[] = $buffer;
-                    $buffer = '';
-                }
-                $tokens[] = $tok;
+        foreach (array_reverse($tokens) as $tok) {
+            $trimmed = trim($tok);
+            if ($trimmed === '') {
+                continue;
             }
-            elseif (preg_match($spaceRegex, $tok)) {
-                if ($buffer !== '' && $next !== null && !preg_match($arabicCharRegex, $next)) {
-                    $buffer .= $tok;
-                } else {
-                    if ($buffer !== '') {
-                        $tokens[] = $buffer;
-                        $buffer = '';
-                    }
-                    $tokens[] = $tok;
-                }
-            }
-            else {
-                $buffer .= $tok;
-            }
-        }
-        if ($buffer !== '') {
-            $tokens[] = $buffer;
-        }
 
-        $tokens = array_reverse($tokens);
-
-        $result = '';
-        foreach ($tokens as $tok) {
             if (preg_match($bracketWrapRegex, $tok, $m)) {
                 $open  = $m[1];
                 $inner = $m[2];
                 $close = $m[3];
                 $innerReversed = self::reversePersianText($inner);
-                $result .= $open . $innerReversed . $close;
+                $processedTokens[] = $open . $innerReversed . $close;
             }
-            elseif (preg_match($arabicCharRegex, $tok)) {
-                $chars = self::mb_str_split($tok);
+            elseif (preg_match($symbolRegex, $tok)) {
+                array_unshift($processedTokens, $tok);
+            }
+            elseif (preg_match($latinRegex, $tok)) {
+                $processedTokens[] = $tok;
+            }
+            elseif (preg_match($hasArabicRegex, $tok) && !preg_match($numberRegex, $tok)) {
+                $chars = preg_split('//u', $tok, -1, PREG_SPLIT_NO_EMPTY);
                 $chars = array_reverse($chars);
-                $result .= implode('', $chars);
+                $processedTokens[] = implode('', $chars);
             }
             else {
-                $result .= $tok;
+                $processedTokens[] = $tok;
             }
         }
 
-        return $result;
+        $trimmedTokens = array_map('trim', $processedTokens);
+        $result = implode(' ', $trimmedTokens);
+        return rtrim($result);
     }
 
     public static function mb_str_split(string $string): array
