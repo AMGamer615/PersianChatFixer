@@ -10,11 +10,11 @@
     }
   ],
   "require": {
-    "php": "^8.0",
-    "pocketmine/pocketmine-mp": "^5.0.0"
+    "php": "^8.0"
   },
   "require-dev": {
     "phpunit/phpunit": "*",
-    "phpstan/phpstan": "^2.1.21"
+    "phpstan/phpstan": "^2.1.21",
+    "pocketmine/pocketmine-mp": "^5.0.0"
   }
 }
