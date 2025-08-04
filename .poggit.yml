@@ -2,6 +2,7 @@
 build-by-default: true
 branches:
 - master
+- no-res-pack
 projects:
   PersianChatFixer:
     path: ""
