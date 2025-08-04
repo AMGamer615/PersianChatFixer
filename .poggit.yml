@@ -1,0 +1,10 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/AMGamer615/PersianChatFixer
+build-by-default: true
+branches:
+- master
+- no-res-pack
+projects:
+  PersianChatFixer:
+    lint:
+      phpstan: false
+...

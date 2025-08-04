@@ -1,9 +1,15 @@
 {
-    "require": {
-        "php": "8.2.*",
-        "pocketmine/pocketmine-mp": "5.31.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^11.5"
-    }
+  "name": "amgamer615/persianchatfixer",
+  "description": "Fixes Persian text display and direction in PocketMine-MP chat and signs.",
+  "type": "project",
+  "license": "MIT",
+  "author": "AMGamer615",
+  "require": {
+    "php": "^8.2",
+    "pocketmine/pocketmine-mp": ">=5.14.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*",
+    "phpstan/phpstan": "^2.1.21"
+  }
 }

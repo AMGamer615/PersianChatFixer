@@ -53,6 +53,13 @@ If you encounter any issues or have suggestions, please open an issue on the Git
 
 ---
 
+## ⭐ Support Us by Starring! | با زدن ستاره از ما حمایت کنید!
+
+If you find this plugin useful, please consider **starring** the repository on GitHub. It helps us grow and lets others discover the project!  
+<div dir="rtl">اگر این پلاگین براتون مفید بود، لطفاً با زدن ⭐ روی مخزن گیت‌هاب از ما حمایت کنید. این کار باعث دلگرمی ما میشه و به بقیه هم کمک می‌کنه تا این پروژه رو پیدا کنن!</div>
+
+---
+
 ## License | مجوز
 
 This plugin is released under the MIT License.  
