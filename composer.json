@@ -3,18 +3,13 @@
   "description": "Fixes Persian text display and direction in PocketMine-MP chat and signs.",
   "type": "project",
   "license": "MIT",
-  "authors": [
-    {
-      "name": "AMGamer615",
-      "email": "email@example.com"
-    }
-  ],
+  "author": "AMGamer615",
   "require": {
-    "php": "^8.0"
+    "php": "^8.0",
+    "pocketmine/pocketmine-mp": "^5.14.0"
   },
   "require-dev": {
     "phpunit/phpunit": "*",
-    "phpstan/phpstan": "^2.1.21",
-    "pocketmine/pocketmine-mp": "^5.0.0"
+    "phpstan/phpstan": "^2.1.21"
   }
 }
