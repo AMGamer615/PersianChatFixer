@@ -7,6 +7,4 @@ projects:
   PersianChatFixer:
     lint:
       phpstan: false
-    exclude:
-      - tests/
 ...
