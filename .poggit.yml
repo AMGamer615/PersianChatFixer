@@ -7,4 +7,5 @@ projects:
   PersianChatFixer:
     lint:
       phpstan: false
+    icon: icon.png
 ...
