@@ -20,7 +20,7 @@
 use AMGamer615\PersianChatFixer\PersianTextEngine;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__. '/../src/PersianTextEngine.php';
+require_once __DIR__ . '/../src/PersianTextEngine.php';
 
 class PersianTextEngineTest extends TestCase
 {
@@ -107,9 +107,10 @@ class PersianTextEngineTest extends TestCase
     {
         $this->assertEquals("§csalam khobi?", PersianTextEngine::process("§csalam khobi?"));
         $this->assertEquals('§cمﻼﺳ', PersianTextEngine::process("§cسلام"));
-        $this->assertEquals('§c?khobi مﻼﺳ', PersianTextEngine::process("§cسلام khobi?"));
+        $this->assertEquals('§c?khobi §cمﻼﺳ', PersianTextEngine::process("§cسلام khobi?"));
         $this->assertEquals('§c؟ﯽﺑﻮﺧ §2Ali §cمﻼﺳ', PersianTextEngine::process("§cسلام §2Ali §cخوبی؟"));
-        $this->assertEquals('§c؟ﯽﺑﻮﺧ salam', PersianTextEngine::process("§csalam خوبی؟"));
-        $this->assertEquals('§2؟ﯽﺑﻮﺧ Ali §cمﻼﺳ', PersianTextEngine::process("§cسلام §2Ali خوبی؟"));
+        $this->assertEquals('§c؟ﯽﺑﻮﺧ §csalam', PersianTextEngine::process("§csalam خوبی؟"));
+        $this->assertEquals('§2؟ﯽﺑﻮﺧ §2Ali §cمﻼﺳ', PersianTextEngine::process("§cسلام §2Ali خوبی؟"));
+        $this->assertEquals('§6?khobi §6ﯽﻠﻋ §6salam §3؟ﯽﺑﻮﺧ §3ali §3مﻼﺳ§3  §2؟ﯽﺑﻮﺧ §2ﯽﻠﻋ §2مﻼﺳ §c?salam ali khobi', PersianTextEngine::process("§csalam ali khobi? §2سلام علی خوبی؟ §3 سلام ali خوبی؟ §6salam علی khobi?"));
     }
 }

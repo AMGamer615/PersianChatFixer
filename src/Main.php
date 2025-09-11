@@ -28,13 +28,9 @@ use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 
-class Main extends PluginBase implements Listener{
+class Main extends PluginBase implements Listener
+{
     use SingletonTrait;
-
-    protected function onEnable(): void
-    {
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
-    }
 
     /** @priority LOW */
     public function onPlayerChat(PlayerChatEvent $event): void
@@ -45,8 +41,33 @@ class Main extends PluginBase implements Listener{
     /** @priority LOW */
     public function onSignChange(SignChangeEvent $event): void
     {
-        $signText = $event->getNewText();
-        $lines = array_map(fn($line) => PersianTextEngine::process($line), $signText->getLines());
-        $event->setNewText(new SignText($lines, $signText->getBaseColor(), $signText->isGlowing()));
+        $oldSignText = $event->getNewText();
+        $originalLines = $oldSignText->getLines();
+
+        $wrappedLines = [];
+
+        foreach ($originalLines as $line) {
+            if (mb_strlen($line, "UTF-8") > 14) {
+                $lineParts = mb_str_split($line, 14, "UTF-8");
+                foreach ($lineParts as $part) {
+                    $wrappedLines[] = $part;
+                }
+            } else {
+                $wrappedLines[] = $line;
+            }
+        }
+
+        $processedLines = array_map(static fn($line) => PersianTextEngine::process($line), array_slice($wrappedLines, 0, 4));
+
+        $event->setNewText(new SignText(
+            $processedLines,
+            $oldSignText->getBaseColor(),
+            $oldSignText->isGlowing()
+        ));
+    }
+
+    protected function onEnable(): void
+    {
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 }
