@@ -25,24 +25,12 @@ use pocketmine\block\utils\SignText;
 use pocketmine\event\block\SignChangeEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
-use pocketmine\event\player\PlayerResourcePackOfferEvent;
 use pocketmine\plugin\PluginBase;
-use pocketmine\resourcepacks\ResourcePack;
-use pocketmine\resourcepacks\ZippedResourcePack;
 use pocketmine\utils\SingletonTrait;
 
-class Main extends PluginBase implements Listener{
+class Main extends PluginBase implements Listener
+{
     use SingletonTrait;
-
-    private const ResourcePackName = "PersianFontPack.zip";
-    private static ResourcePack $resourcePack;
-
-    protected function onEnable(): void
-    {
-        $this->saveResource(self::ResourcePackName);
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        self::$resourcePack = new ZippedResourcePack($this->getDataFolder(). self::ResourcePackName);
-    }
 
     /** @priority LOW */
     public function onPlayerChat(PlayerChatEvent $event): void
@@ -53,14 +41,33 @@ class Main extends PluginBase implements Listener{
     /** @priority LOW */
     public function onSignChange(SignChangeEvent $event): void
     {
-        $signText = $event->getNewText();
-        $lines = array_map(fn($line) => PersianTextEngine::process($line), $signText->getLines());
-        $event->setNewText(new SignText($lines, $signText->getBaseColor(), $signText->isGlowing()));
+        $oldSignText = $event->getNewText();
+        $originalLines = $oldSignText->getLines();
+
+        $wrappedLines = [];
+
+        foreach ($originalLines as $line) {
+            if (mb_strlen($line, "UTF-8") > 14) {
+                $lineParts = mb_str_split($line, 14, "UTF-8");
+                foreach ($lineParts as $part) {
+                    $wrappedLines[] = $part;
+                }
+            } else {
+                $wrappedLines[] = $line;
+            }
+        }
+
+        $processedLines = array_map(static fn($line) => PersianTextEngine::process($line), array_slice($wrappedLines, 0, 4));
+
+        $event->setNewText(new SignText(
+            $processedLines,
+            $oldSignText->getBaseColor(),
+            $oldSignText->isGlowing()
+        ));
     }
 
-    /** @priority LOW */
-    public function onPlayerResourcePackOffer(PlayerResourcePackOfferEvent $event): void
+    protected function onEnable(): void
     {
-        $event->addResourcePack(self::$resourcePack, "AMGamer615");
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 }
