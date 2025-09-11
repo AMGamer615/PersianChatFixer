@@ -105,26 +105,31 @@ class PersianTextEngine
             $symbolRegex    = '/^[><\[\]]+$/';
         }
 
+        // extract leading color codes like §c§1...
         $leadingColor = '';
         if (preg_match('/^(?:§.)+/u', $text, $lm)) {
             $leadingColor = $lm[0];
             $text = mb_substr($text, mb_strlen($leadingColor, 'UTF-8'), null, 'UTF-8');
         }
 
+        // extract leading symbol(s) like >>> or > or [ etc plus following spaces
         $leadingSymbol = '';
         if (preg_match('/^([><\[\]]+)(\s*)/u', $text, $sm)) {
             $leadingSymbol = $sm[1] . ($sm[2] ?? '');
             $text = mb_substr($text, mb_strlen($leadingSymbol, 'UTF-8'), null, 'UTF-8');
         }
 
+        // if there's no Arabic at all, return quickly (preserve leading color & symbol)
         if (!preg_match($hasArabicRegex, $text)) {
             return $leadingColor . $leadingSymbol . $text;
         }
 
+        // tokenize: keep bracketed groups, whitespace, or other chunks
         preg_match_all('/(?:§.)*(?:\([^)]*\)|\[[^]]*]|\{[^}]*}|<[^>]*>|\s+|[^\s(){}\[\]<>]+)/u', $text, $m);
         $tokens = $m[0];
 
-        $splitPrefix = static function (string $tok) {
+        // helper: split token into prefix(color codes) and core
+        $splitPrefix = static function (string $tok): array {
             if (preg_match('/^(?:§.)+/u', $tok, $pm)) {
                 $pref = $pm[0];
                 $core = mb_substr($tok, mb_strlen($pref, 'UTF-8'), null, 'UTF-8');
@@ -133,9 +138,10 @@ class PersianTextEngine
             return ['', $tok];
         };
 
+        // Merge contiguous Latin (ASCII/digit) runs so their internal order stays intact after reverse
         $merged = [];
-        $i = 0;
         $n = count($tokens);
+        $i = 0;
         while ($i < $n) {
             $t = $tokens[$i];
 
@@ -146,12 +152,6 @@ class PersianTextEngine
             }
 
             if (preg_match('/^[(\[{<].*[)\]}>]$/us', $t)) {
-                $merged[] = $t;
-                $i++;
-                continue;
-            }
-
-            if (preg_match($hasArabicRegex, $t)) {
                 $merged[] = $t;
                 $i++;
                 continue;
@@ -181,98 +181,109 @@ class PersianTextEngine
             $i++;
         }
 
-        $merged = array_reverse($merged);
+        // First pass (left -> right): determine applied color for each merged token
+        $lastPrefix = $leadingColor; // last seen prefix (affects subsequent tokens without their own prefix)
+        $tokenObjs = [];
 
-        $outParts = [];
-
-        foreach ($merged as $tok) {
-            if (preg_match('/^\s+$/u', $tok)) {
-                $outParts[] = $tok;
+        foreach ($merged as $t) {
+            if (preg_match('/^\s+$/u', $t)) {
+                // whitespace: keep as-is, no applied color
+                $tokenObjs[] = [
+                    'raw'     => $t,
+                    'prefix'  => '',
+                    'core'    => $t,
+                    'applied' => ''
+                ];
                 continue;
             }
 
-            if (preg_match('/^(?:§.)*([(\[{<])/u', $tok)) {
-                [$pref, $core] = $splitPrefix($tok);
+            [$pref, $core] = $splitPrefix($t);
+
+            if ($pref !== '') {
+                // token carries its own prefix: update lastPrefix and applied = pref
+                $lastPrefix = $pref;
+                $applied = $pref;
+            } else {
+                // no prefix: applied color is lastPrefix (may be empty)
+                $applied = $lastPrefix;
+            }
+
+            $tokenObjs[] = [
+                'raw'     => $t,
+                'prefix'  => $pref,
+                'core'    => $core,
+                'applied' => $applied
+            ];
+        }
+
+        // reverse tokens for output
+        $tokenObjs = array_reverse($tokenObjs);
+
+        // Build output using token-specific applied colors
+        $outParts = [];
+        foreach ($tokenObjs as $tokObj) {
+            $raw = $tokObj['raw'];
+            $core = $tokObj['core'];
+            $colorForToken = $tokObj['applied'];
+
+            if (preg_match('/^\s+$/u', $raw)) {
+                $outParts[] = $raw;
+                continue;
+            }
+
+            // Bracketed groups: recursively reverse inner content, keep the token's applied color
+            if (preg_match('/^(?:§.)*([(\[{<])/u', $raw)) {
                 if (preg_match('/^\((.*)\)$/us', $core, $im)) {
-                    $inner = $im[1];
-                    $innerReversed = self::reversePersianText($inner);
-                    $outParts[] = $pref . '(' . $innerReversed . ')';
+                    $inner = self::reversePersianText($im[1]);
+                    $outParts[] = $colorForToken . '(' . $inner . ')';
                     continue;
                 }
                 if (preg_match('/^\[(.*)]$/us', $core, $im)) {
-                    $inner = $im[1];
-                    $innerReversed = self::reversePersianText($inner);
-                    $outParts[] = $pref . '[' . $innerReversed . ']';
+                    $inner = self::reversePersianText($im[1]);
+                    $outParts[] = $colorForToken . '[' . $inner . ']';
                     continue;
                 }
                 if (preg_match('/^\{(.*)}$/us', $core, $im)) {
-                    $inner = $im[1];
-                    $innerReversed = self::reversePersianText($inner);
-                    $outParts[] = $pref . '{' . $innerReversed . '}';
+                    $inner = self::reversePersianText($im[1]);
+                    $outParts[] = $colorForToken . '{' . $inner . '}';
                     continue;
                 }
                 if (preg_match('/^<(.*)>$/us', $core, $im)) {
-                    $inner = $im[1];
-                    $innerReversed = self::reversePersianText($inner);
-                    $outParts[] = $pref . '<' . $innerReversed . '>';
+                    $inner = self::reversePersianText($im[1]);
+                    $outParts[] = $colorForToken . '<' . $inner . '>';
                     continue;
                 }
             }
 
-            [$prefix, $coreTok] = $splitPrefix($tok);
-
-            if (preg_match($symbolRegex, $coreTok)) {
-                $outParts[] = $prefix . $coreTok;
+            // symbol-only tokens like >>> or >>> with color
+            if (preg_match($symbolRegex, $core)) {
+                $outParts[] = $colorForToken . $core;
                 continue;
             }
 
-            if (!preg_match($hasArabicRegex, $coreTok) && preg_match('/[A-Za-z0-9]/u', $coreTok)) {
-                if (preg_match('/^(.*?)([\p{P}\p{S}]+)$/u', $coreTok, $pm)) {
+            // Latin/ASCII words with trailing punctuation: move punctuation in front
+            if (!preg_match($hasArabicRegex, $core) && preg_match('/[A-Za-z0-9]/u', $core)) {
+                if (preg_match('/^(.*?)([\p{P}\p{S}]+)$/u', $core, $pm)) {
                     [, $word, $pun] = $pm;
-                    $coreTok = $pun . $word;
+                    $core = $pun . $word;
                 }
-                $outParts[] = $prefix . $coreTok;
+                $outParts[] = $colorForToken . $core;
                 continue;
             }
 
-            if (preg_match($hasArabicRegex, $coreTok) && !preg_match($numberRegex, $coreTok)) {
-                $chars = preg_split('//u', $coreTok, -1, PREG_SPLIT_NO_EMPTY);
+            // Arabic words (non-numeric): reverse character order
+            if (preg_match($hasArabicRegex, $core) && !preg_match($numberRegex, $core)) {
+                $chars = preg_split('//u', $core, -1, PREG_SPLIT_NO_EMPTY);
                 $chars = array_reverse($chars);
-                $outParts[] = $prefix . implode('', $chars);
+                $outParts[] = $colorForToken . implode('', $chars);
                 continue;
             }
 
-            $outParts[] = $prefix . $coreTok;
+            // default: emit with applied color
+            $outParts[] = $colorForToken . $core;
         }
 
-        $combined = implode('', $outParts);
-
-        if ($leadingColor !== '') {
-            $firstIdx = null;
-            foreach ($outParts as $j => $jValue) {
-                if (!preg_match('/^\s+$/u', $jValue)) {
-                    $firstIdx = $j;
-                    break;
-                }
-            }
-            if ($firstIdx !== null && preg_match('/^(?:§.)+/u', $outParts[$firstIdx])) {
-                for ($j = count($outParts) - 1; $j >= 0; $j--) {
-                    if (!preg_match('/^\s+$/u', $outParts[$j])) {
-                        $outParts[$j] = $leadingColor . $outParts[$j];
-                        break;
-                    }
-                }
-            } elseif ($firstIdx !== null) {
-                $outParts[$firstIdx] = $leadingColor . $outParts[$firstIdx];
-            } else {
-                $combined = $leadingColor . $combined;
-                return $leadingSymbol . $combined;
-            }
-            $combined = implode('', $outParts);
-            return $leadingSymbol . $combined;
-        }
-
-        return $leadingColor . $leadingSymbol . $combined;
+        return $leadingSymbol . implode('', $outParts);
     }
 
     public static function process(string $text): string
