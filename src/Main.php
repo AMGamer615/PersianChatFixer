@@ -25,12 +25,17 @@ use pocketmine\block\utils\SignText;
 use pocketmine\event\block\SignChangeEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
+use pocketmine\event\player\PlayerResourcePackOfferEvent;
 use pocketmine\plugin\PluginBase;
+use pocketmine\resourcepacks\ResourcePack;
 use pocketmine\utils\SingletonTrait;
 
 class Main extends PluginBase implements Listener
 {
     use SingletonTrait;
+
+    private const ResourcePackName = "PersianFontPack.zip";
+    private static ResourcePack $resourcePack;
 
     /** @priority LOW */
     public function onPlayerChat(PlayerChatEvent $event): void
@@ -64,6 +69,12 @@ class Main extends PluginBase implements Listener
             $oldSignText->getBaseColor(),
             $oldSignText->isGlowing()
         ));
+    }
+
+    /** @priority LOW */
+    public function onPlayerResourcePackOffer(PlayerResourcePackOfferEvent $event): void
+    {
+        $event->addResourcePack(self::$resourcePack, "AMGamer615");
     }
 
     protected function onEnable(): void
