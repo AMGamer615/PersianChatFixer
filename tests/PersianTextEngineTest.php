@@ -20,7 +20,7 @@
 use AMGamer615\PersianChatFixer\PersianTextEngine;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../src/PersianTextEngine.php';
+require_once __DIR__ . "/../src/AMGamer615/PersianChatFixer/PersianTextEngine.php";
 
 class PersianTextEngineTest extends TestCase
 {
@@ -43,54 +43,57 @@ class PersianTextEngineTest extends TestCase
 
     public function testCorrectPersianText_SimpleWords(): void
     {
-        $this->assertEquals('ﺳﻼم', PersianTextEngine::correctPersianText("سلام"));
-        $this->assertEquals('دﻧﯿﺎ', PersianTextEngine::correctPersianText("دنیا"));
-        $this->assertEquals('ﮐﺘﺎب', PersianTextEngine::correctPersianText("کتاب"));
-        $this->assertEquals('ﻣﺪرﺳﻪ', PersianTextEngine::correctPersianText("مدرسه"));
+        $this->assertEquals("ﺳﻼﻡ", PersianTextEngine::correctPersianText("سلام"));
+        $this->assertEquals("ﺩﻧﯿﺎ", PersianTextEngine::correctPersianText("دنیا"));
+        $this->assertEquals("ﮐﺘﺎﺏ", PersianTextEngine::correctPersianText("کتاب"));
+        $this->assertEquals("ﻣﺪﺭﺳﻪ", PersianTextEngine::correctPersianText("مدرسه"));
     }
 
     public function testProcess_SimpleWords(): void
     {
-        $this->assertEquals('مﻼﺳ', PersianTextEngine::process("سلام"));
-        $this->assertEquals('ﺎﯿﻧد', PersianTextEngine::process("دنیا"));
-        $this->assertEquals('بﺎﺘﮐ', PersianTextEngine::process("کتاب"));
-        $this->assertEquals('ﻪﺳرﺪﻣ', PersianTextEngine::process("مدرسه"));
-        $this->assertEquals('داﺪﻣ', PersianTextEngine::process("مداد"));
-        $this->assertEquals('ورﺎﮐ', PersianTextEngine::process("کارو"));
+        $this->assertEquals("ﻡﻼﺳ", PersianTextEngine::process("سلام"));
+        $this->assertEquals("ﺎﯿﻧﺩ", PersianTextEngine::process("دنیا"));
+        $this->assertEquals("ﺏﺎﺘﮐ", PersianTextEngine::process("کتاب"));
+        $this->assertEquals("ﻪﺳﺭﺪﻣ", PersianTextEngine::process("مدرسه"));
+        $this->assertEquals("ﻩﺩﺎﻔﺘﺳﺍ", PersianTextEngine::process("استفاده"));
+        $this->assertEquals("ﺩﺍﺪﻣ", PersianTextEngine::process("مداد"));
+        $this->assertEquals("ﻭﺭﺎﮐ", PersianTextEngine::process("کارو"));
     }
 
     public function testProcess_MixedTextWithPunctuation(): void
     {
-        $this->assertEquals('!ﺎﯿﻧد ،مﻼﺳ', PersianTextEngine::process("سلام، دنیا!"));
-        $this->assertEquals('؟ﯽﺑﻮﺧ', PersianTextEngine::process("خوبی؟"));
-        $this->assertEquals(';ﺎﯿﻧد :مﻼﺳ', PersianTextEngine::process("سلام: دنیا;"));
+        $this->assertEquals("!ﺎﯿﻧﺩ ،ﻡﻼﺳ", PersianTextEngine::process("سلام، دنیا!"));
+        $this->assertEquals("؟ﯽﺑﻮﺧ", PersianTextEngine::process("خوبی؟"));
+        $this->assertEquals(";ﺎﯿﻧﺩ :ﻡﻼﺳ", PersianTextEngine::process("سلام: دنیا;"));
     }
 
     public function testProcess_EnglishOrMixedLanguage(): void
     {
-        $this->assertEquals('<salam>', PersianTextEngine::process("<salam>"));
-        $this->assertEquals('؟ﯽﺑﻮﺧ Ali مﻼﺳ', PersianTextEngine::process("سلام Ali خوبی؟"));
-        $this->assertEquals('مﻼﺳ Ali', PersianTextEngine::process("Ali سلام"));
-        $this->assertEquals('Book بﺎﺘﮐ', PersianTextEngine::process("کتاب Book"));
-        $this->assertEquals('یدﻼﯿﻣ 2025 لﺎﺳ', PersianTextEngine::process("سال 2025 میلادی"));
-        $this->assertEquals('ﺖﺴﺗ 123', PersianTextEngine::process("123 تست"));
-        $this->assertEquals('456 ﺖﺴﺗ', PersianTextEngine::process("تست 456"));
-        $this->assertEquals('!ﺎﯿﻧد Ali مﻼﺳ', PersianTextEngine::process("سلام Ali دنیا!"));
-        $this->assertEquals('.مﺪﯾد ور Ali زوﺮﻣا', PersianTextEngine::process("امروز Ali رو دیدم."));
-        $this->assertEquals('!ﻪﯿﻟﺎﻋ X2025 لﺪﻣ Tesla وردﻮﺧ', PersianTextEngine::process("خودرو Tesla مدل X2025 عالیه!"));
+        $this->assertEquals("<salam>", PersianTextEngine::process("<salam>"));
+        $this->assertEquals("؟ﯽﺑﻮﺧ Ali ﻡﻼﺳ", PersianTextEngine::process("سلام Ali خوبی؟"));
+        $this->assertEquals("ﻡﻼﺳ Ali", PersianTextEngine::process("Ali سلام"));
+        $this->assertEquals("Book ﺏﺎﺘﮐ", PersianTextEngine::process("کتاب Book"));
+        $this->assertEquals("ﯼﺩﻼﯿﻣ 2025 ﻝﺎﺳ", PersianTextEngine::process("سال 2025 میلادی"));
+        $this->assertEquals("ﺪﯿﻨﮐ ﯼﺭﺍﺪﯾﺮﺧ ﺍﺭ ﺩﻮﺧ ﺯﺎﯿﻧ ﺩﺭﻮﻣ ﻞﯾﺎﺳﻭ /shop ﺭﻮﺘﺳﺩ ﺯﺍ ﻩﺩﺎﻔﺘﺳﺍ ﺎﺑ", PersianTextEngine::process("با استفاده از دستور /shop وسایل مورد نیاز خود را خریداری کنید"));
+        $this->assertEquals("ﺖﺴﺗ 123", PersianTextEngine::process("123 تست"));
+        $this->assertEquals("456 ﺖﺴﺗ", PersianTextEngine::process("تست 456"));
+        $this->assertEquals("!ﺎﯿﻧﺩ Ali ﻡﻼﺳ", PersianTextEngine::process("سلام Ali دنیا!"));
+        $this->assertEquals(".ﻡﺪﯾﺩ ﻭﺭ Ali ﺯﻭﺮﻣﺍ", PersianTextEngine::process("امروز Ali رو دیدم."));
+        $this->assertEquals("!ﻪﯿﻟﺎﻋ X2025 ﻝﺪﻣ Tesla ﻭﺭﺩﻮﺧ", PersianTextEngine::process("خودرو Tesla مدل X2025 عالیه!"));
     }
 
     public function testProcess_LaLigature(): void
     {
-        $this->assertEquals('کﻻ', PersianTextEngine::process("لاک"));
-        $this->assertEquals('ﺎﯿﻧد ﻻ مﻼﺳ', PersianTextEngine::process("سلام لا دنیا"));
-        $this->assertEquals('کﻻ Ali', PersianTextEngine::process("Ali لاک"));
+        $this->assertEquals("ﮎﻻ", PersianTextEngine::process("لاک"));
+        $this->assertEquals("ﺎﯿﻧﺩ ﻻ ﻡﻼﺳ", PersianTextEngine::process("سلام لا دنیا"));
+        $this->assertEquals("ﮎﻻ Ali", PersianTextEngine::process("Ali لاک"));
     }
 
     public function testProcess_QuotesAndParentheses(): void
     {
-        $this->assertEquals('(Book) بﺎﺘﮐ', PersianTextEngine::process("کتاب (Book)"));
-        $this->assertEquals('Ali "مﻼﺳ"', PersianTextEngine::process("\"سلام\" Ali"));
+        $this->assertEquals("(Book) ﺏﺎﺘﮐ", PersianTextEngine::process("کتاب (Book)"));
+        $this->assertEquals('Ali "ﻡﻼﺳ"', PersianTextEngine::process("\"سلام\" Ali"));
+        $this->assertEquals("Ali 'ﻡﻼﺳ'", PersianTextEngine::process("'سلام' Ali"));
     }
 
     public function testProcess_EnglishOnlyLowercase(): void
@@ -100,17 +103,17 @@ class PersianTextEngineTest extends TestCase
 
     public function testProcess_ComplexSentences(): void
     {
-        $this->assertEquals('.مﺪﯾد ور Ali زوﺮﻣا ؟ﯽﺑﻮﺧ .مﻼﺳ', PersianTextEngine::process("سلام. خوبی؟ امروز Ali رو دیدم."));
+        $this->assertEquals(".ﻡﺪﯾﺩ ﻭﺭ Ali ﺯﻭﺮﻣﺍ ؟ﯽﺑﻮﺧ .ﻡﻼﺳ", PersianTextEngine::process("سلام. خوبی؟ امروز Ali رو دیدم."));
     }
 
     public function testProcess_Colorize(): void
     {
         $this->assertEquals("§csalam khobi?", PersianTextEngine::process("§csalam khobi?"));
-        $this->assertEquals('§cمﻼﺳ', PersianTextEngine::process("§cسلام"));
-        $this->assertEquals('§c?khobi §cمﻼﺳ', PersianTextEngine::process("§cسلام khobi?"));
-        $this->assertEquals('§c؟ﯽﺑﻮﺧ §2Ali §cمﻼﺳ', PersianTextEngine::process("§cسلام §2Ali §cخوبی؟"));
-        $this->assertEquals('§c؟ﯽﺑﻮﺧ §csalam', PersianTextEngine::process("§csalam خوبی؟"));
-        $this->assertEquals('§2؟ﯽﺑﻮﺧ §2Ali §cمﻼﺳ', PersianTextEngine::process("§cسلام §2Ali خوبی؟"));
-        $this->assertEquals('§6?khobi §6ﯽﻠﻋ §6salam §3؟ﯽﺑﻮﺧ §3ali §3مﻼﺳ§3  §2؟ﯽﺑﻮﺧ §2ﯽﻠﻋ §2مﻼﺳ §c?salam ali khobi', PersianTextEngine::process("§csalam ali khobi? §2سلام علی خوبی؟ §3 سلام ali خوبی؟ §6salam علی khobi?"));
+        $this->assertEquals("§cﻡﻼﺳ", PersianTextEngine::process("§cسلام"));
+        $this->assertEquals("§c?khobi §cﻡﻼﺳ", PersianTextEngine::process("§cسلام khobi?"));
+        $this->assertEquals("§c؟ﯽﺑﻮﺧ §2Ali §cﻡﻼﺳ", PersianTextEngine::process("§cسلام §2Ali §cخوبی؟"));
+        $this->assertEquals("§c؟ﯽﺑﻮﺧ §csalam", PersianTextEngine::process("§csalam خوبی؟"));
+        $this->assertEquals("§2؟ﯽﺑﻮﺧ §2Ali §cﻡﻼﺳ", PersianTextEngine::process("§cسلام §2Ali خوبی؟"));
+        $this->assertEquals("§6?khobi §6ﯽﻠﻋ §6salam §3؟ﯽﺑﻮﺧ §3ali §3ﻡﻼﺳ§3  §2؟ﯽﺑﻮﺧ §2ﯽﻠﻋ §2ﻡﻼﺳ §c?salam ali khobi", PersianTextEngine::process("§csalam ali khobi? §2سلام علی خوبی؟ §3 سلام ali خوبی؟ §6salam علی khobi?"));
     }
 }
