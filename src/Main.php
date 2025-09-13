@@ -28,6 +28,7 @@ use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerResourcePackOfferEvent;
 use pocketmine\plugin\PluginBase;
 use pocketmine\resourcepacks\ResourcePack;
+use pocketmine\resourcepacks\ZippedResourcePack;
 use pocketmine\utils\SingletonTrait;
 
 class Main extends PluginBase implements Listener
@@ -36,6 +37,13 @@ class Main extends PluginBase implements Listener
 
     private const ResourcePackName = "PersianFontPack.zip";
     private static ResourcePack $resourcePack;
+
+    protected function onEnable(): void
+    {
+        $this->saveResource(self::ResourcePackName);
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+        self::$resourcePack = new ZippedResourcePack($this->getDataFolder(). self::ResourcePackName);
+    }
 
     /** @priority LOW */
     public function onPlayerChat(PlayerChatEvent $event): void
@@ -75,10 +83,5 @@ class Main extends PluginBase implements Listener
     public function onPlayerResourcePackOffer(PlayerResourcePackOfferEvent $event): void
     {
         $event->addResourcePack(self::$resourcePack, "AMGamer615");
-    }
-
-    protected function onEnable(): void
-    {
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 }
