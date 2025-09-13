@@ -20,7 +20,7 @@
 use AMGamer615\PersianChatFixer\PersianTextEngine;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . "/../src/AMGamer615/PersianChatFixer/PersianTextEngine.php";
+require_once __DIR__ . '/../src/PersianTextEngine.php';
 
 class PersianTextEngineTest extends TestCase
 {
